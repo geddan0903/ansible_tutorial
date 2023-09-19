@@ -7,3 +7,11 @@
   - name: install httpd package
     yum:
       name: httpd
+      state: latest
+    when: ansible_distribution == "RedHat" or ansible_distribution == "Red Hat Enterprise Linux"
+
+  - name: install apache2 package
+    apt:
+      name: apache2
+      state: latest
+    when: ansible_distribution == "Debian"
