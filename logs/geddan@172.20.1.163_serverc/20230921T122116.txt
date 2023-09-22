@@ -1,0 +1,20 @@
+System (geddan@172.20.1.163 | serverc)
+
+	Vendor: Microsoft Corporation
+	Version: Hyper-V UEFI Release v4.1
+	Release Date: 05/05/2021
+	Manufacturer: Microsoft Corporation
+	Product Name: Virtual Machine
+	Version: Hyper-V UEFI Release v4.1
+	Manufacturer: Microsoft Corporation
+	Version: Hyper-V UEFI Release v4.1
+	Manufacturer: Microsoft Corporation
+	Product Name: Virtual Machine
+	Version: Hyper-V UEFI Release v4.1
+	Manufacturer: Intel(R) Corporation
+	Version: 12th Gen Intel(R) Core(TM) i7-1255U
+	Part Number: None
+	Bank Locator: None
+	Manufacturer: Microsoft Corporation
+	Part Number: None
+	Firmware Version: Not Specified

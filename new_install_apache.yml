@@ -1,0 +1,27 @@
+---
+
+- hosts: all
+  become: true
+  gather_facts: yes
+  tasks:
+
+  - name: install httpd package
+    yum:
+      name:
+        -  httpd
+      state: latest
+    when: ansible_distribution == "RedHat" or ansible_distribution == "Red Hat Enterprise Linux"
+
+  - name: install apache2 package
+    apt:
+      name:
+        -   apache2
+      state: latest
+    when: ansible_distribution == "Debian"
+
+  - name: Get OS informations
+    debug:
+      msg: 
+        - "IP: {{ansible_all_ipv4_addresses | first }}"
+        - "MAC: {{ hostvars[inventory_hostname].ansible_default_ipv4.macaddress }}"
+        - "Kernel: {{ansible_kernel}}"

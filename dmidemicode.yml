@@ -1,0 +1,133 @@
+---
+
+- hosts: redhat_servers
+  gather_facts: yes
+# gather_subset: min
+  become: yes
+  tasks:
+  - name: check, and install dmidecode package
+    tags:
+      - logfile
+      - sendmail
+    ansible.builtin.package:
+      name: dmidecode
+      state: present
+
+  - name: gathering, and filtering dmidecode output
+    tags:
+      - logfile
+      - sendmail
+    shell: dmidecode | egrep "Vendor:|Version:|Release Date:|Product Name:|Version:|Bank Locator:|Manufacturer:|Part Number:"
+    changed_when: dmidecodeout.stdout_lines | length < 4
+    register: dmidecodeout
+#    ignore_errors: true
+
+  - name: logfile check directory exist
+    become: no
+    tags:
+      - logfile
+    local_action:
+      module: file
+      path: "logs/{{ inventory_hostname }}_{{ ansible_hostname }}"
+      state: directory
+      recurse: yes
+      mode: u=rwX,g=rX,o=rX
+
+  - name: copy information to local directory folder
+    become: no
+    tags:
+      - logfile
+    local_action:
+      module: copy
+      content: "System ({{ inventory_hostname }} | {{ ansible_hostname }})\n\n{{ dmidecodeout.stdout_lines|join('\n') }}\n"
+      dest: "logs/{{ inventory_hostname }}_{{ ansible_hostname }}/{{ ansible_date_time.iso8601_basic_short }}.txt"
+
+  - name: Run lspci to get video card info
+    command: lspci
+    register: lspci_output
+    changed_when: false
+
+  - name: Extract video driver version
+    debug:
+      msg: "{{ lspci_output.stdout | regex_search('VGA compatible controller: (.*)', '\\1') }}"
+
+  - name: Check if Google Chrome is installed
+    become: yes  # Futtasd sudo jogosultsággal
+    command: google-chrome --version
+    register: chrome_version_output
+    ignore_errors: yes
+    changed_when: false
+    failed_when: false
+
+  - name: Install Google Chrome if not installed
+    yum:
+      name: google-chrome-stable
+      state: present
+    when: chrome_version_output.rc != 0
+
+  - name: Get Google Chrome version
+    command: google-chrome --version
+    register: chrome_version_output
+    when: chrome_version_output.rc == 0
+
+  - name: Display Google Chrome version
+    debug:
+      msg: "{{ chrome_version_output.stdout }}"
+    when: chrome_version_output.rc == 0
+
+  - name: Get Kernel Version
+    command: uname -r
+    register: kernel_version_output  # Változó, amiben tároljuk az eredményt
+
+  - name: Display Kernel Version
+    debug:
+      msg: "Kernel Version on {{ inventory_hostname }}: {{ kernel_version_output.stdout }}"
+
+  - name: Get libdrm Version
+    command: pkg-config --modversion libdrm
+    register: libdrm_version_output  # Változó az eredmény tárolására
+
+  - name: Display libdrm Version
+    debug:
+      msg: "libdrm Version on {{ inventory_hostname }}: {{ libdrm_version_output.stdout }}"
+
+  - name: Display Linux Version
+    debug:
+      var: ansible_distribution + ' ' + ansible_distribution_version
+
+  - name: Get /var/log size
+    ansible.builtin.shell: du -sh /var/log
+    register: var_log_size
+
+  - name: Get /dev/sda1 size
+    ansible.builtin.shell: df -h /dev/sda1
+    register: sda1_size
+
+  - name: Display Sizes
+    debug:
+      msg:
+        - "/var/log size: {{ var_log_size.stdout }}"
+        - "/dev/sda1 size: {{ sda1_size.stdout }}"
+
+#  - name: Get VGA compatible controller
+#    ansible.builtin.shell: lspci -nn | grep VGA
+#    register: vga_controller
+
+  - name: Get i915 driver version
+    ansible.builtin.command: modinfo i915 | grep version
+    register: i915_driver_version
+    when: vga_controller.stdout is search("Intel Corporation")
+
+  - name: Display i915 Driver Version
+    debug:
+      msg: "i915 driver version: {{ i915_driver_version.stdout_lines[0] }}"
+    when: i915_driver_version.rc == 0
+
+  - name: Extract i915 driver version
+    shell: modinfo i915 | grep vermagic
+    register: i915_version
+    ignore_errors: yes
+
+  - name: Display i915 driver version
+    debug:
+      var: i915_version.stdout_lines

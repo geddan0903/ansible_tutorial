@@ -1,0 +1,32 @@
+---
+
+- hosts: redhat_servers
+  gather_facts: yes
+# gather_subset: min
+  become: yes
+  tasks:
+
+  - name: Check if Google Chrome is installed
+    become: yes  # Futtasd sudo jogosultsággal
+    command: google-chrome --version
+    register: chrome_version_output
+    ignore_errors: yes
+    changed_when: false
+    failed_when: false
+
+#  - name: Install Google Chrome if not installed
+#    yum:
+#      name: google-chrome-stable
+#      state: present
+#    when: chrome_version_output.rc != 0
+
+  - name: Get Google Chrome version
+    command: google-chrome --version
+    register: chrome_version_output
+    when: chrome_version_output.rc == 0
+
+  - name: Display Google Chrome version
+    debug:
+      msg: "{{ chrome_version_output.stdout }}"
+    when: chrome_version_output.rc == 0
+
