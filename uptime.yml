@@ -1,0 +1,11 @@
+---
+
+- name: Get Uptime of Servers
+  hosts: all
+  tasks:
+    - name: Gather System Facts
+      setup:
+ 
+    - name: Display Uptime
+      debug:
+        var: ansible_uptime_seconds

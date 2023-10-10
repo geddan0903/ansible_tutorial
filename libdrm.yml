@@ -1,0 +1,14 @@
+---
+
+- hosts: debian_servers
+  become: true
+  tasks:
+
+  - name: Update APT package cache
+    apt:
+      update_cache: yes
+
+  - name: Install the latest libdrm2 package
+    apt:
+      name: libdrm2
+      state: latest

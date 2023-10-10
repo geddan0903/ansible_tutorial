@@ -1,6 +1,6 @@
 [redhat_servers]
-geddan@172.20.1.163
-geddan@172.20.1.51
+geddan@172.20.229.110
+geddan@172.20.230.39
 
 [debian_servers]
 geddan@192.168.0.50
