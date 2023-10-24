@@ -1,0 +1,19 @@
+---
+
+- name: 30 napnál régebbi file-ok törlése
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Másold a cron file-t az /etc/cron.d/ mappába
+      copy:
+        src: logtorles
+        dest: /etc/cron.d/logtorles  # Az útvonal, ahová a file-t másolni szeretnéd
+      notify: restart cron  # Értesítjük a cron service-t a változásokról
+
+  handlers:
+    - name: restart cron
+      service:
+        name: cron
+        state: restarted
+

@@ -1,0 +1,21 @@
+---
+
+- hosts: redhat_servers
+  become: true
+  tasks:
+    - name: change ServerAdmin email-address
+      tags: apache, redhat, httpd
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^ServerAdmin'
+        line: ServerAdmin admin@gmail.com
+      when: ansible_distribution == "RedHat"
+      register: httpd
+
+    - name: restart httpd
+      tags: apache, redhat, httpd
+      service:
+        name: httpd
+        state: restarted
+      when: httpd.changed
+  

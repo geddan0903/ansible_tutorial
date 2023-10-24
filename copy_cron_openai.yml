@@ -1,0 +1,18 @@
+---
+
+- name: 30 napnál régebbi file-ok törlése és cron szolgáltatás újraindítása
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Másold a cron file-t az /etc/cron.d/ mappába
+      copy:
+        src: logtorles
+        dest: /etc/cron.d/logtorles
+      notify: restart cron  # Értesítjük a cron service-t a változásokról
+
+  handlers:
+    - name: restart cron
+      service:
+        name: "{{ 'cron' if ansible_os_family == 'Debian' else 'crond' }}"
+        state: restarted
