@@ -1,0 +1,44 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: install updates Redhat
+    yum:
+      name: '*'
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == "RedHat" or ansible_distribution == "Red Hat Enterprise Linux" 
+
+  - name: install updates Debian
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Debian"
+
+
+- hosts: redhat_servers
+  become: true
+  tasks:
+
+  - name: install apache and php for RedHat
+    yum:
+      name: 
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution == "RedHat" or ansible_distribution == "Red Hat Enterprise Linux"
+
+- hosts: debian_servers
+  become: true
+  tasks:
+
+  - name: install apache2 and php for Debian
+    apt:
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == "Debian"

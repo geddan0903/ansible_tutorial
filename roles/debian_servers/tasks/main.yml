@@ -1,0 +1,12 @@
+- name: install updates Debian
+  apt:
+    upgrade: dist
+    update_cache: yes
+
+- name: install apache2 and php for Debian
+  apt:
+    name:
+      - apache2
+      - libapache2-mod-php
+    state: latest
+    update_cache: yes
